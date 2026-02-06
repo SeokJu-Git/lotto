@@ -1,0 +1,16 @@
+# 비밀/환경 (절대 올리지 말 것)
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+
+# 노트북 체크포인트
+.ipynb_checkpoints/
+
+# 로또 엑셀 (용량·개인 보관용, 올려도 되고 안 올려도 됨)
+# 로또 회차별 당첨번호_*.xlsx
