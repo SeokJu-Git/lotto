@@ -85,6 +85,14 @@
       color: var(--muted);
       font-size: 0.85rem;
     }
+    .picked-slot:not(.empty) {
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.15s;
+    }
+    .picked-slot:not(.empty):hover {
+      opacity: 0.85;
+      transform: scale(1.05);
+    }
     .all-balls-section {
       background: var(--card);
       border-radius: 12px;
@@ -245,10 +253,25 @@
       el.innerHTML = '';
       for (let i = 0; i < 6; i++) {
         const slot = document.createElement('div');
-        slot.className = 'picked-slot' + (selectedSix[i] == null ? ' empty' : '');
-        slot.textContent = selectedSix[i] != null ? selectedSix[i] : '－';
+        const num = selectedSix[i];
+        const isEmpty = num == null;
+        slot.className = 'picked-slot' + (isEmpty ? ' empty' : '');
+        slot.textContent = isEmpty ? '－' : num;
+        if (!isEmpty) {
+          slot.title = '클릭하면 취소';
+          slot.dataset.number = num;
+          slot.addEventListener('click', () => removePicked(num));
+        }
         el.appendChild(slot);
       }
+    }
+
+    function removePicked(num) {
+      const idx = selectedSix.indexOf(num);
+      if (idx === -1) return;
+      selectedSix.splice(idx, 1);
+      renderPickedSlots();
+      updateBallPickedState();
     }
 
     function renderBalls() {
