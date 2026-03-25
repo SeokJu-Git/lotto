@@ -558,26 +558,60 @@
       return 'color-5';
     }
 
+    let currentDrawIndex = 0;
+
     function renderLatestDraw() {
-      if (!lottoData || !lottoData.latest_draw) return;
-      const latest = lottoData.latest_draw;
+      if (!lottoData) return;
+
+      const draws = (lottoData.recent_draws && lottoData.recent_draws.length > 0) ? lottoData.recent_draws : (lottoData.latest_draw ? [lottoData.latest_draw] : []);
+      if (draws.length === 0) return;
+
+      const draw = draws[currentDrawIndex];
       const container = document.getElementById('latest-draw-container');
 
-      let html = `<div class="latest-draw-title"><span>[${latest.round}회]</span> 최신 당첨 번호</div>`;
+      let html = `<div style="display:flex; justify-content:space-between; align-items:center;">`;
+
+      // Prev Button (older draw)
+      if (currentDrawIndex < draws.length - 1) {
+        html += `<div style="cursor:pointer; padding:10px; font-size:1.8rem; font-weight:lighter; user-select:none; color:var(--muted); transition: color 0.2s;" onclick="changeDraw(1)" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--muted)'" title="이전 회차">&#10094;</div>`;
+      } else {
+        html += `<div style="padding:10px; font-size:1.8rem; opacity:0; user-select:none;">&#10094;</div>`;
+      }
+
+      html += `<div style="flex:1;">`;
+      const titleText = currentDrawIndex === 0 ? "최신 당첨 번호" : "당첨 번호";
+      html += `<div class="latest-draw-title"><span>[${draw.round}회]</span> ${titleText}</div>`;
       html += `<div class="latest-balls-wrapper">`;
 
       // 당첨 번호 6개
-      latest.numbers.forEach(n => {
+      draw.numbers.forEach(n => {
         html += `<div class="latest-ball ${getBallColorClass(n)}">${n}</div>`;
       });
 
       // 보너스 번호
       html += `<div class="latest-plus">+</div>`;
-      html += `<div class="latest-ball ${getBallColorClass(latest.bonus)}" title="보너스 번호">${latest.bonus}</div>`;
+      html += `<div class="latest-ball ${getBallColorClass(draw.bonus)}" title="보너스 번호">${draw.bonus}</div>`;
+
+      html += `</div></div>`;
+
+      // Next Button (newer draw)
+      if (currentDrawIndex > 0) {
+        html += `<div style="cursor:pointer; padding:10px; font-size:1.8rem; font-weight:lighter; user-select:none; color:var(--muted); transition: color 0.2s;" onclick="changeDraw(-1)" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--muted)'" title="다음 회차">&#10095;</div>`;
+      } else {
+        html += `<div style="padding:10px; font-size:1.8rem; opacity:0; user-select:none;">&#10095;</div>`;
+      }
 
       html += `</div>`;
       container.innerHTML = html;
       container.style.display = 'block';
+    }
+
+    function changeDraw(delta) {
+      if (!lottoData || !lottoData.recent_draws) return;
+      currentDrawIndex += delta;
+      if (currentDrawIndex < 0) currentDrawIndex = 0;
+      if (currentDrawIndex >= lottoData.recent_draws.length) currentDrawIndex = lottoData.recent_draws.length - 1;
+      renderLatestDraw();
     }
 
     function getRange(n) {
